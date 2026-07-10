@@ -17,7 +17,17 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-test = ["pytest>=8.0"]
+server = [
+  "fastapi>=0.115",
+  "python-multipart>=0.0.9",
+  "uvicorn[standard]>=0.30",
+]
+test = [
+  "pytest>=8.0",
+  "fastapi>=0.115",
+  "python-multipart>=0.0.9",
+  "uvicorn[standard]>=0.30",
+]
 
 [project.scripts]
 deck-vision = "deck_vision.cli:main"

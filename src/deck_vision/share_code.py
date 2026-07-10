@@ -9,7 +9,11 @@ from .errors import DeckVisionError
 
 def load_block_words(path: Path | None = None) -> list[str]:
     if path is None:
-        path = Path(__file__).resolve().parents[2] / "data" / "block_words.txt"
+        candidates = [
+            Path(__file__).resolve().parents[2] / "data" / "block_words.txt",
+            Path.cwd() / "data" / "block_words.txt",
+        ]
+        path = next((candidate for candidate in candidates if candidate.exists()), candidates[0])
     if not path.exists():
         return []
     return [

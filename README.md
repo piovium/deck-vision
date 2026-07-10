@@ -20,6 +20,10 @@ images into a local cache.
   - `opencv-python-headless`
   - `pillow`
   - `platformdirs`
+- Optional HTTP server dependencies:
+  - `fastapi`
+  - `python-multipart`
+  - `uvicorn[standard]`
 - Test dependency:
   - `pytest`
 - Default asset endpoint:
@@ -45,6 +49,12 @@ For development and tests:
 python -m pip install -e .[test]
 ```
 
+To install the optional HTTP server:
+
+```sh
+python -m pip install -e .[server]
+```
+
 If the `deck-vision` script directory is not on `PATH`, use:
 
 ```sh
@@ -63,6 +73,12 @@ Show cache status:
 
 ```sh
 deck-vision assets info
+```
+
+Run the HTTP API server:
+
+```sh
+deck-vision serve --host 127.0.0.1 --port 8000
 ```
 
 Recognize an image and print only the share code:
@@ -91,6 +107,69 @@ Errors are printed to stderr as structured JSON and return exit code `2`.
 Example error codes include `image_not_found`, `image_read_failed`,
 `asset_fetch_failed`, `asset_cache_invalid`, `not_enough_cards`,
 `wrong_card_counts`, and `no_valid_share_code`.
+
+## HTTP API
+
+The optional server exposes the same recognition behavior over HTTP. Server
+configuration comes from environment variables:
+
+- `ASSETS_API_ENDPOINT`: card metadata and image endpoint.
+- `DECK_VISION_CACHE_DIR`: cache root directory for server deployments.
+- `DECK_VISION_MAX_UPLOAD_BYTES`: maximum upload size, default `20971520`.
+
+Start locally:
+
+```sh
+deck-vision serve --host 127.0.0.1 --port 8000
+```
+
+Recognize one uploaded image:
+
+```sh
+curl -F "image=@examples/deck_img_5.png" http://127.0.0.1:8000/v1/recognize
+```
+
+Successful responses match the library output shape:
+
+```json
+{
+  "characters": [1101, 1202, 1303],
+  "cards": [2101, 2102],
+  "code": "..."
+}
+```
+
+Errors use the same structured JSON shape as the CLI:
+
+```json
+{
+  "error": "wrong_card_counts",
+  "message": "The image did not resolve to exactly 3 character cards and 30 action cards.",
+  "details": {}
+}
+```
+
+Other endpoints:
+
+- `GET /healthz`: process health, independent of asset cache.
+- `GET /readyz`: returns `200` only when metadata and templates are cached.
+- `GET /v1/assets`: returns asset cache status.
+- `POST /v1/assets/refresh`: refreshes metadata, card faces, and templates.
+
+## Docker
+
+Build and run the HTTP server image:
+
+```sh
+docker build -t deck-vision .
+docker run --rm -p 8000:8000 deck-vision
+```
+
+To persist downloaded card assets between container runs:
+
+```sh
+docker run --rm -p 8000:8000 -v deck-vision-cache:/var/cache/deck-vision deck-vision
+```
 
 ## Library Usage
 
@@ -215,4 +294,5 @@ The integration tests require a populated asset cache or live access to
 - Recognition expects reasonably clear card-face images.
 - Failed recognition returns structured errors, but does not yet generate a
   marked-up diagnostic image.
-- There is no HTTP API or Docker image yet.
+- The HTTP API is synchronous and does not yet include auth, rate limiting,
+  async jobs, or diagnostic image markup.

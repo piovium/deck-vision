@@ -11,7 +11,7 @@ class DeckVisionError(Exception):
     details: dict[str, Any] = field(default_factory=dict)
 
     def __str__(self) -> str:
-        return f"{self.code}: {self.message}"
+        return f"{self.code}: {self.message} {self.details}"
 
     def to_dict(self) -> dict[str, Any]:
         return {"error": self.code, "message": self.message, "details": self.details}
