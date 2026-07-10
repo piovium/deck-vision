@@ -83,8 +83,8 @@ class AssetStore:
         self.images_dir.mkdir(parents=True, exist_ok=True)
         try:
             with httpx.Client(timeout=httpx.Timeout(30.0, connect=15.0), follow_redirects=True) as client:
-                character_payload = self._get_json(client, f"{self.endpoint}/data/latest/CHS/characters")
-                action_payload = self._get_json(client, f"{self.endpoint}/data/latest/CHS/action_cards")
+                character_payload = self._get_json(client, f"{self.endpoint}/data/beta/CHS/characters")
+                action_payload = self._get_json(client, f"{self.endpoint}/data/beta/CHS/action_cards")
                 cards = [
                     *self._parse_cards(character_payload, "character"),
                     *self._parse_cards(action_payload, "action"),
