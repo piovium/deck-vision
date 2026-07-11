@@ -1,0 +1,14 @@
+services:
+  deck-vision:
+    build: .
+    image: deck-vision:latest
+    ports:
+      - "8000:8000"
+    environment:
+      DECK_VISION_CACHE_DIR: /var/cache/deck-vision
+    volumes:
+      - deck-vision-cache:/var/cache/deck-vision
+    restart: on-failure
+
+volumes:
+  deck-vision-cache:
