@@ -217,7 +217,14 @@ def infer_grid_cells_from_matches(
             target_cols = min(3, max(len(row) for row in useful_rows))
             target_rows = 1
         else:
-            target_cols = max(len(row) for row in useful_rows)
+            # A single stray match can make one otherwise regular row look
+            # wider than the deck grid. Prefer the most common observed row
+            # width so that outlier does not become an inferred column.
+            row_lengths = [len(row) for row in useful_rows]
+            target_cols = max(
+                set(row_lengths),
+                key=lambda length: (row_lengths.count(length), length),
+            )
             target_rows = int(np.ceil(expected_count / max(1, target_cols)))
             target_cols = min(
                 len(global_xs),
@@ -575,6 +582,28 @@ def dedupe_matches(matches: list[MatchResult]) -> list[MatchResult]:
 def select_spatial_group(matches: list[MatchResult], count: int) -> list[MatchResult]:
     if len(matches) <= count:
         return matches
+
+    # When cards are arranged in a grid, a real card column has multiple
+    # aligned matches. Isolated edge contours can still pass template matching
+    # but have no such support. Remove them before the compactness heuristic,
+    # provided that doing so leaves a complete deck-sized group.
+    median_w = float(np.median([match.candidate.w for match in matches]))
+    x_threshold = max(8.0, median_w * 0.45)
+    # Require three matches: two unrelated edge contours can share an x value,
+    # while an action-card grid normally contributes a full column.
+    x_supported = [
+        match
+        for match in matches
+        if sum(
+            abs(match.candidate.x - other.candidate.x) <= x_threshold
+            for other in matches
+        ) >= 3
+    ]
+    if len(x_supported) >= count:
+        matches = x_supported
+    if len(matches) <= count:
+        return matches
+
     ordered = sorted(matches, key=lambda m: m.score, reverse=True)
     seeds = ordered[: min(len(ordered), count + 12)]
     best: list[MatchResult] = ordered[:count]
