@@ -18,7 +18,7 @@ from platformdirs import user_cache_path
 from .errors import DeckVisionError
 
 CardKind = Literal["character", "action"]
-DEFAULT_ENDPOINT = "https://static-data.piovium.org/api/v4"
+DEFAULT_ENDPOINT = "https://static-data.piovium.org/api/v5"
 TEMPLATE_SIZE = (70, 120)
 INNER_TEMPLATE_SIZE = (56, 96)
 
@@ -84,7 +84,7 @@ class AssetStore:
         try:
             with httpx.Client(timeout=httpx.Timeout(30.0, connect=15.0), follow_redirects=True) as client:
                 character_payload = self._get_json(client, f"{self.endpoint}/data/beta/CHS/characters")
-                action_payload = self._get_json(client, f"{self.endpoint}/data/beta/CHS/action_cards")
+                action_payload = self._get_json(client, f"{self.endpoint}/data/beta/CHS/entities")
                 cards = [
                     *self._parse_cards(character_payload, "character"),
                     *self._parse_cards(action_payload, "action"),

@@ -25,9 +25,9 @@ Implement `deck-vision` project: A program that convert deck sharing image of Ge
 
 ### Internal ID, Share ID, and Card face fetching
 
-- The environment variable `ASSETS_API_ENDPOINT`, defaults to `https://static-data.piovium.org/api/v4`, should be used by program in following ways:
+- The environment variable `ASSETS_API_ENDPOINT`, defaults to `https://static-data.piovium.org/api/v5`, should be used by program in following ways:
 
-- `${ASSETS_API_ENDPOINT}/data/latest/CHS/characters` and `${ASSETS_API_ENDPOINT}/data/latest/CHS/action_cards`, both returns:
+- `${ASSETS_API_ENDPOINT}/data/latest/CHS/characters` and `${ASSETS_API_ENDPOINT}/data/latest/CHS/entities`, both returns:
   ```ts
   interface CharacterOrActionCardsData {
     success: true,

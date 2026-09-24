@@ -27,7 +27,7 @@ images into a local cache.
 - Test dependency:
   - `pytest`
 - Default asset endpoint:
-  - `https://static-data.piovium.org/api/v4`
+  - `https://static-data.piovium.org/api/v5`
 - Endpoint override:
   - `ASSETS_API_ENDPOINT`
   - or CLI flag `--endpoint`
@@ -187,7 +187,7 @@ Optional overrides:
 ```python
 output = recognize_deck(
     "deck.png",
-    endpoint="https://static-data.piovium.org/api/v4",
+    endpoint="https://static-data.piovium.org/api/v5",
     cache_dir=".cache/deck-vision",
 )
 ```
@@ -197,7 +197,7 @@ output = recognize_deck(
 `AssetStore` downloads and caches all shareable cards:
 
 1. Fetch `data/latest/CHS/characters`.
-2. Fetch `data/latest/CHS/action_cards`.
+2. Fetch `data/latest/CHS/entities`.
 3. Keep entries with `id`, `shareId`, and `cardFace`.
 4. Download each card face from `image/raw/{cardFace}`.
 5. Store images as PNG files in the local cache.
